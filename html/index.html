@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <script src="../static/js/jquery-2.0.2.min.js"></script>
+    <script src="../static/js/d3.v3.min.js"></script>
+    <script src="../static/js/topojson.v1.min.js"></script>
+    <script src="../static/js/datamaps.world.min.js"></script>
+    <script src="../static/js/vis_map.js"></script>
+    <!-- data via global namespace. Change in production to be more sane. -->
+    <script src="../data/meeting_list_all_utf8_with_GoogleMapsResponse.txt"></script>
+    <script>
+      $(document).ready(function() {
+        vis_map(visdata)
+      })
+    </script>
+    <style>
+      .svg-container-vis_map {
+        height: 450px;
+        width: 600px;
+        border: 1px solid black; 
+      }
+    </style>
+
+  </head>
+
+  <body>
+    <div class="svg-container-vis_map"></div>
+
+  </body>
+
+</html>
