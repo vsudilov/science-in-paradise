@@ -2,28 +2,45 @@
   <head>
     <script src="../static/js/jquery-2.0.2.min.js"></script>
     <script src="../static/js/d3.v3.min.js"></script>
-    <script src="../static/js/topojson.v1.min.js"></script>
-    <script src="../static/js/datamaps.world.min.js"></script>
+    <script src="../static/js/d3.geo.tile.v0.min.js"></script>
     <script src="../static/js/vis_map.js"></script>
     <!-- data via global namespace. Change in production to be more sane. -->
-    <script src="../data/meeting_list_all_utf8_with_GoogleMapsResponse.txt"></script>
+    <script src="../data/fakedata.json"></script>
     <script>
       $(document).ready(function() {
-        vis_map(visdata)
+        vis_map(data)
       })
     </script>
     <style>
-      .svg-container-vis_map {
-        height: 450px;
-        width: 600px;
-        border: 1px solid black; 
+
+      .map {
+        position: relative;
+        overflow: hidden;
       }
+
+      .layer {
+        position: absolute;
+      }
+
+      .tile {
+        pointer-events: none;
+        position: absolute;
+        width: 256px;
+        height: 256px;
+      }
+
+      .info {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+      }
+
     </style>
 
   </head>
 
   <body>
-    <div class="svg-container-vis_map"></div>
+    <div id="svg-container-vis_map"></div>
 
   </body>
 

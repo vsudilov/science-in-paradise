@@ -1,69 +1,68 @@
-function vis_map (data) {
+function vis_map(data){
+  var width = Math.max(960, window.innerWidth*0.8),
+      height = Math.max(500, window.innerHeight);
 
-  //var scale = d3.scale.log()
-    //.domain(d3.extent(data, function(d) {return d.hits}))
-    //.range([3, 10]);
+  width = 256*5;
+  var tile = d3.geo.tile()
+      .size([width, height]);
 
+  var projection = d3.geo.mercator()
+      //.scale((1 << 12) / 2 / Math.PI)
+      .scale(200)
+      .translate([width / 2, height / 2]);
 
-  // function move() {
-  //   var t = d3.event.translate,
-  //       s = d3.event.scale;
-  //   t[0] = Math.min(width / 2 * (s - 1), Math.max(width / 2 * (1 - s), t[0]));
-  //   t[1] = Math.min(height / 2 * (s - 1) + 230 * s, Math.max(height / 2 * (1 - s) - 230 * s, t[1]));
-  //   zoom.translate(t);
-  //   g.style("stroke-width", 1 / s).attr("transform", "translate(" + t + ")scale(" + s + ")");
-  // }
+  var center = projection([0, 0]);
 
+  var path = d3.geo.path()
+      .projection(projection);
 
-  // var zoom = d3.behavior.zoom()
-  //   .scaleExtent([1, 8])
-  //   .on("zoom", move);
+  var zoom = d3.behavior.zoom()
+      .scale(projection.scale() * 2 * Math.PI)
+      .scaleExtent([1 << 9, 1 << 16])
+      .translate([width - center[0], height - center[1]])
+      .on("zoom", zoomed);
 
+  // With the center computed, now adjust the projection such that
+  // it uses the zoom behavior’s translate and scale.
+  projection
+      .scale(1 / 2 / Math.PI)
+      .translate([0, 0]);
 
-  $.each(data, function (index,datapoint) {
-//    datapoint.radius = scale(datapoint.hits)
-    datapoint.radius = 1.5
-    if ('GoogleMapsResponse' in datapoint){
-      datapoint.latitude = datapoint.GoogleMapsResponse.results[0].geometry.location.lat
-      datapoint.longitude = datapoint.GoogleMapsResponse.results[0].geometry.location.lng
-    } else {
-      datapoint.latitude = undefined
-      datapoint.longitude = undefined
-    }
-    datapoint.fillKey = 'bubbleFill'
-  });
+  var svg = d3.select("#svg-container-vis_map").append("svg")
+      .attr("class",'map')
+      .attr("width", width)
+      .attr("height", height);
 
+  var raster = svg.append("g");
 
-  var Map = new Datamap({
-    element: $('.svg-container-vis_map')[0],
-    scope: 'world',
-    geographyConfig: {
-      popupOnHover: false,
-      highlightOnHover: false
-    },
-    fills: {
-      defaultFill: '#ABDDA4', //the keys in this object map to the "fillKey" of [data] or [bubbles]
-      bubbleFill : 'blue',
-    },  
-    data: {
-      "bubbleFill": {fillKey:"bubbleFill"},
-    },
-    done: function(datamap) {
-      datamap.svg.selectAll('.datamaps-subunits').on('click',function () {
-        console.log("clicked")
-        //Zoom functionality here via datamap.setProjection
-        //Won't be operable with d3 crunching cx/cy after render...Cut data down might help...?
-      })
-    }
-  });
+  var vector = svg.append("path");
+  
+  svg.call(zoom)
+  zoomed()
 
-  Map.bubbles(data,{
-    popupTemplate:function (geography, data) {
-      return ['<div class="hoverinfo"><strong>' + data.location + '</strong>',
-      '</div>'].join('');
-    },
-    borderWidth: 0.5,
-    borderColor: '#FFFFFF',
-    popupOnHover: true,
-  })
-}; //end startVis
+  function zoomed() {
+    var tiles = tile
+        .scale(zoom.scale())
+        .translate(zoom.translate())
+        ();
+
+    vector
+        .attr("transform", "translate(" + zoom.translate() + ")scale(" + zoom.scale() + ")")
+        .style("stroke-width", 1 / zoom.scale());
+    var image = raster
+        .attr("transform", "scale(" + tiles.scale + ")translate(" + tiles.translate + ")")
+      .selectAll("image")
+        .data(tiles, function(d) { return d; });
+
+    image.exit()
+        .remove();
+
+    image.enter().append("image")
+//        .attr("xlink:href", function(d) { return "http://" + ["a", "b", "c", "d"][Math.random() * 4 | 0] + ".tiles.mapbox.com/v3/examples.map-vyofok3q/" + d[2] + "/" + d[0] + "/" + d[1] + ".png"; })
+        .attr("xlink:href", function(d) { return "http://" + ["a", "b", "c", "d"][Math.random() * 4 | 0] + ".tile.stamen.com/toner/" + d[2] + "/" + d[0] + "/" + d[1] + ".png"; })
+        .attr("width", 1)
+        .attr("height", 1)
+        .attr("x", function(d) { return d[0]; })
+        .attr("y", function(d) { return d[1]; });
+  }
+}

@@ -1,0 +1,12 @@
+data = [
+  {
+    name: "conf1",
+    lat: 123,
+    lnt: -23,
+  },
+  {
+    name: "conf2",
+    lat:50.1,
+    lng:25,
+  }
+]
