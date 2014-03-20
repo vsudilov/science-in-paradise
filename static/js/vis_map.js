@@ -13,8 +13,8 @@ function vis_map(data){
 
   var center = projection([0, 0]);
 
-  var path = d3.geo.path()
-      .projection(projection);
+  // var path = d3.geo.path()
+  //     .projection(projection);
 
   var zoom = d3.behavior.zoom()
       .scale(projection.scale() * 2 * Math.PI)
@@ -34,9 +34,33 @@ function vis_map(data){
       .attr("height", height);
 
   var raster = svg.append("g");
+  // var vector = svg.append("path");
+  console.log(projection([data[0].lat,data[0].lng]))
+  console.log()
+  var bubbles = svg.selectAll("g.bubble")
+      .data(data)
+      .enter()
+      .append("svg:g")
+        .attr("transform","translate(" + zoom.translate() + ")scale(" + zoom.scale() + ")")
+        //.attr("transform",function(d){return "translate("+projection([d.lat,d.lng])+")"})
+        .attr("class","bubble")
 
-  var vector = svg.append("path");
-  
+  var circle = bubbles.append("circle")
+      .attr("cx",0)
+      .attr("cy",0)
+      .attr("r",0.02)
+      .attr("fill",'blue')
+        
+  var text = bubbles.append("text")
+       .attr("text-anchor","middle")
+       //.attr("transform", 'translate(0,-18)')
+       .attr('fill','red')
+       .attr('font-size','0.01')
+       .text(function(d) {
+         return d.name;
+       });
+
+
   svg.call(zoom)
   zoomed()
 
@@ -46,9 +70,11 @@ function vis_map(data){
         .translate(zoom.translate())
         ();
 
-    vector
-        .attr("transform", "translate(" + zoom.translate() + ")scale(" + zoom.scale() + ")")
-        .style("stroke-width", 1 / zoom.scale());
+     bubbles
+         .attr("transform", "translate(" + zoom.translate() + ")scale(" + zoom.scale() + ")")
+    //     .style("stroke-width", 1 / zoom.scale());
+
+
     var image = raster
         .attr("transform", "scale(" + tiles.scale + ")translate(" + tiles.translate + ")")
       .selectAll("image")

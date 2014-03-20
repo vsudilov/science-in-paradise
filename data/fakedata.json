@@ -1,12 +1,12 @@
 data = [
   {
-    name: "conf1",
-    lat: 123,
-    lnt: -23,
+    name: "munich",
+    lat: 48.1,
+    lng: 11.5,
   },
   {
     name: "conf2",
-    lat:50.1,
+    lat:50,
     lng:25,
   }
 ]
