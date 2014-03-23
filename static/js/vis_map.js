@@ -56,7 +56,7 @@ function vis_map(data){
       .translate([width / 2, height / 2]);
 
   var center = projection([0, 0]);
-
+  
   var zoom = d3.behavior.zoom()
       .scale(projection.scale() * 2 * Math.PI)
       .scaleExtent([1 << 9, 1 << 16])
@@ -81,7 +81,7 @@ function vis_map(data){
 
   var bubbles = bubbleG.selectAll(".bubble")
       .data(data)
-      .enter()
+  bubbles.enter()
       .append("g")
         .attr("transform",function(d){return "translate("+projection([d.lng,d.lat])+")scale("+projection.scale()+")"})
         .attr("class","bubble")
@@ -135,16 +135,32 @@ function vis_map(data){
 
   function updateVis(newVisData) {
 
-
-
-    var b = bubbleG.selectAll('g.bubble')
+    var bg = bubbleG.selectAll('.bubble')
       .data(newVisData)
-      .exit()
-      .remove()
-    // b.enter()
-    //   .append("g")
-    //     .attr("transform",function(d){return "translate("+projection([d.lng,d.lat])+")scale("+projection.scale()+")"})
-    //     .attr("class","bubble")
+    
+    var exit = bg.exit()
+    exit.transition().duration(500)
+      .selectAll("circle")
+      .attr("r",1e-5)
+    exit.transition().delay(500).remove()
+
+    var enter = bg.enter()
+      .append("g")
+        .attr("transform",function(d){return "translate("+projection([d.lng,d.lat])+")scale("+projection.scale()+")"})
+        .attr("class","bubble")
+
+    var c = enter.append("circle")
+      .attr("fill",function(d) {return categories[d.category].color})
+      .attr("r",1e-5)    
+      .transition().duration(550)
+      .attr("r", function(d) { return Math.sqrt(rscale(d.duration))/zoom.scale()})
+
+          // b.append("circle")
+    //     .transition()
+    //     .duration(750)
+    //     .attr('r', function(d) { return Math.sqrt(rscale(d.duration))/zoom.scale()})
+    //     .attr("fill",function(d) {return categories[d.category].color})
+
 
     // b
     //   .exit()
