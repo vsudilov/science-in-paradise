@@ -86,7 +86,7 @@ function vis_map(data){
         .attr("transform",function(d){return "translate("+projection([d.lng,d.lat])+")scale("+projection.scale()+")"})
         .attr("class","bubble")
 
-  var circles = bubbles.append("circle")
+  bubbles.append("circle")
       .attr("fill",function(d) {return categories[d.category].color})
         
   // var text = bubbles.append("text")
@@ -110,7 +110,8 @@ function vis_map(data){
     bubbleG
      .attr("transform",function(d){return "translate("+zoom.translate()+")scale("+zoom.scale()+")"})
           
-    circles
+    bubbleG
+      .selectAll("circle")
       .attr('r', function(d) { return Math.sqrt(rscale(d.duration))/zoom.scale()})
 
     // text
@@ -130,7 +131,8 @@ function vis_map(data){
         .attr("width", 1)
         .attr("height", 1)
         .attr("x", function(d) { return d[0]; })
-        .attr("y", function(d) { return d[1]; });
+        .attr("y", function(d) { return d[1]; })
+        .style("opacity",0.4)
   }
 
   function updateVis(newVisData) {
@@ -152,24 +154,7 @@ function vis_map(data){
     var c = enter.append("circle")
       .attr("fill",function(d) {return categories[d.category].color})
       .attr("r",1e-5)    
-      .transition().duration(550)
+      .transition().duration(500)
       .attr("r", function(d) { return Math.sqrt(rscale(d.duration))/zoom.scale()})
-
-          // b.append("circle")
-    //     .transition()
-    //     .duration(750)
-    //     .attr('r', function(d) { return Math.sqrt(rscale(d.duration))/zoom.scale()})
-    //     .attr("fill",function(d) {return categories[d.category].color})
-
-
-    // b
-    //   .exit()
-    //   .remove()
-
-    // b.append("circle")
-    //     .transition()
-    //     .duration(750)
-    //     .attr('r', function(d) { return Math.sqrt(rscale(d.duration))/zoom.scale()})
-    //     .attr("fill",function(d) {return categories[d.category].color})
   }
 }
