@@ -4,8 +4,10 @@
     <script src="../static/js/d3.v3.min.js"></script>
     <script src="../static/js/d3.geo.tile.v0.min.js"></script>
     <script src="../static/js/vis_map.js"></script>
+    <script src="../static/js/jquery-ui.min.js"></script>
     <!-- data via global namespace. Change in production to be more sane. -->
     <script src="../data/fakedata.json"></script>
+    <link rel="stylesheet" href="../static/css/jquery-ui.css"/>
     <script>
       $(document).ready(function() {
         vis_map(data)
@@ -35,13 +37,35 @@
         left: 10px;
       }
 
+      .slider-container {
+        margin-left:50px;
+        margin-top:10px;
+        margin-bottom:;
+        width:500px;
+      }
+
+      .slider-container #slider-label {
+        margin-top:10px;
+      }
+
+      .slider-container #slider-label-text {
+        border: 0; 
+        font-weight: bold;
+      }
+
     </style>
 
   </head>
 
   <body>
-    <div id="svg-container-vis_map"></div>
+    <div class="slider-container">
+      <div id="year-slider"></div>
+      <div id="slider-label">
+        <input type="text" id="slider-label-text"/>
+      </div>
+    </div>
 
+    <div id="svg-container-vis_map"></div>
   </body>
 
 </html>
