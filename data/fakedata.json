@@ -19,7 +19,7 @@ data = [
     name: "santiago",
     lat:-33.45,
     lng:-70.667,
-    category: "expolanets",
+    category: "exoplanets",
     date: 2001,
     duration: 2,
   },
