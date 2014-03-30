@@ -61,7 +61,7 @@ function vis_map(data){
         ele.addClass('active')
       }
     }
-    //first toggle css class
+    //first toggle css class...this causes problems if we rapid-fire toggles with d3.transitions!
     toggleActive($(this))
     //second hook into the filter pipeline
     DataFilter.removePreviousFiltersByType('categoryFilter')
@@ -115,9 +115,9 @@ function vis_map(data){
   //
 
 
-  var width = 256*5, //5 tiles of 256 pixels each.
-      //width = Math.max(960, window.innerWidth*0.8),
-      height = Math.max(500, window.innerHeight);
+  //var width = 256*5, //5 tiles of 256 pixels each.
+  var width = Math.max(600, window.innerWidth*0.6),
+      height = Math.max(400, window.innerHeight*0.8);
 
   var tile = d3.geo.tile()
       .size([width, height]);
