@@ -1,4 +1,38 @@
 function vis_map(data){
+  //Object responsible for storing data filters
+  //and returning a filtered (original) dataset based on these
+  
+  var DataFilter = {
+    //filters contain functions that return true|false.
+    //true=throw away that datum; false=keep that datum.
+    //
+    //The testing logic is wrapped in these functions--The
+    //DataFilter object is agnostic of what that is.
+    filters: [],
+    run: function () { 
+      var filteredData = []
+      var filters = this.filters
+      $.each(data,function(d_index,datum){
+        for (var i = 0; i<filters.length; i++ ) { //difficult to break nested $.each(); fallback to native forloop
+          if ( filters[i].filter(datum) ) {
+            filteredData.push(datum)
+            break;
+          }
+        }
+      })
+      var newVisData = $.grep(data,function(x) {return $.inArray(x, filteredData) < 0}) //difference (set)
+      return newVisData
+    },
+    removePreviousFiltersByType: function(t) {
+      var newFilters = []
+      $.each(this.filters,function(index,val){
+        if (val.type != t) {
+          newFilters.push(val)
+        }
+      })
+      this.filters = newFilters
+    },
+  }
 
   //Analyze input dataset to set proper limits/scales on the visualization
   var colors = d3.scale.category20()
@@ -8,6 +42,41 @@ function vis_map(data){
     if ( !(v.category in categories) ) {
       categories[v.category] = {color: colors(Object.keys(categories).length)}
     }
+  })
+
+  var legend = d3.select('#group-selection-widget ul')
+    .selectAll('li')
+    .data(Object.keys(categories))
+    .enter()
+    .append('li')
+      .text(function(d){return d})
+      .attr('class','active')
+      .style('color',function(d) {return categories[d].color })
+  
+  legend.on('click',function(d){
+    var toggleActive = function (ele) {
+      if ( ele.hasClass('active') ) {
+        ele.removeClass('active')
+      } else {
+        ele.addClass('active')
+      }
+    }
+    //first toggle css class
+    toggleActive($(this))
+    //second hook into the filter pipeline
+    DataFilter.removePreviousFiltersByType('categoryFilter')
+    $.each($('#group-selection-widget li:not(.active)'),function(index,val){
+      var filter = {
+        type:'categoryFilter',
+        testCase: val.textContent,
+        filter: function(datum){
+          //if the test passes, then we filter it (return true=don't show this datum)
+          return (datum.category == this.testCase) ? true:false
+        },
+      }
+      DataFilter.filters.push(filter)
+    })
+    updateVis(DataFilter.run())
   })
 
   var daterange = [d3.min(data,function(d){return d.date}),d3.max(data, function(d){return d.date})]
@@ -25,14 +94,17 @@ function vis_map(data){
     max: daterange[1],
     values: daterange,
     change: function (event, ui ){
-      var newVisData = []
-      $.each(data,function(index,v) {
-        var n = [ui.values[0],ui.values[1]]
-        if (v.date >= n[0] && v.date <= n[1]) {
-          newVisData.push(v)
-        }
-      })
-      updateVis(newVisData)
+      DataFilter.removePreviousFiltersByType('yearFilter')
+      var filter = {
+        type:'yearFilter',
+        testCase: [ui.values[0],ui.values[1]],
+        filter: function(datum){
+          //if the test passes, then we filter it (return true=don't show this datum)
+          return (datum.date >= this.testCase[0] && datum.date <= this.testCase[1]) ? false:true
+        },
+      }
+      DataFilter.filters.push(filter)
+      updateVis(DataFilter.run())
     },
     slide: function( event, ui ) {
       $( "#slider-label-text" ).val( ui.values.join(' - ') );
@@ -136,10 +208,9 @@ function vis_map(data){
   }
 
   function updateVis(newVisData) {
-
     var bg = bubbleG.selectAll('.bubble')
-      .data(newVisData)
-    
+      .data(newVisData, function(d) {return d.name})
+
     var exit = bg.exit()
     exit.transition().duration(500)
       .selectAll("circle")
@@ -157,4 +228,5 @@ function vis_map(data){
       .transition().duration(500)
       .attr("r", function(d) { return Math.sqrt(rscale(d.duration))/zoom.scale()})
   }
+
 }

@@ -53,19 +53,46 @@
         font-weight: bold;
       }
 
+
+      #group-selection-widget ul li {
+        width: 10em;
+        height: 3em;
+        font-weight: bold;
+        font-size: 1.5em;
+        text-align: center;
+        list-style: none;
+        opacity: 0.4;
+
+      }
+      #group-selection-widget ul li.active {
+        opacity:1.0;
+        border:1px solid red;
+      }
+
     </style>
 
   </head>
 
   <body>
-    <div class="slider-container">
-      <div id="year-slider"></div>
-      <div id="slider-label">
-        <input type="text" id="slider-label-text"/>
-      </div>
-    </div>
+    <div class="container">
 
-    <div id="svg-container-vis_map"></div>
+      <div class="slider-container">
+        <div id="year-slider"></div>
+        <div id="slider-label">
+          <input type="text" id="slider-label-text"/>
+        </div>
+      </div>
+
+      <div id="group-selection-widget">
+          <ul>
+          </ul>
+      </div>
+
+      <div id="svg-container-vis_map">
+      </div>
+
+    
+    </div>
   </body>
 
 </html>
