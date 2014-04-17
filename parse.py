@@ -31,9 +31,13 @@ def googleGeocode(loc):
   geolocator = GoogleV3()
   try:
     res =  geolocator.geocode(loc)
-    (lat, lng) = res[1]
   except:
-    lat,lng = "GeocodeException", "GeocodeException"
+    return "GeocodeException", "GeocodeException"
+  if res:  
+    lat = res[0]
+    lng = res[1]
+  else:
+    lat,lng = None,None
   return lat,lng
 
 def init_db(name):
@@ -58,7 +62,7 @@ def main():
       j = json.loads(raw,encoding='ISO-8859-1') if raw else []
       for m in j:
         print "Parsing and Geocoding %s (dt=%0.2f hours)" % (m['title'],(time.time()-s)/60/60)
-        res = db.execute(SQL_SELECT % (m['bibCode'],m['title'])).fetchall()
+        res = db.execute(SQL_SELECT % (m['bibCode'],m['title'].replace('"',''))).fetchall()
         L = m['location'] if m['location'] else m['address']
         if res:
           lat = res[0][0]
@@ -78,7 +82,7 @@ def main():
         bibcode = m['bibCode']
         start = datetime.datetime.strptime(m['start'],'%Y-%m-%d').isoformat()
         duration = (datetime.datetime.strptime(m['end'],'%Y-%m-%d')-datetime.datetime.strptime(m['start'],'%Y-%m-%d')).days
-        name = m['title']
+        name = m['title'].replace('"','')
         keywords = m['keywords']
         SQL = SQL_INSERT.strip().replace('\n','')
         db.executescript(SQL % (bibcode,name,start,duration,keywords,bibcode,name,lat,lng))
