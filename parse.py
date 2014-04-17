@@ -27,7 +27,7 @@ SLEEP_GAUSSIAN_PARAMS = {
 
 
 def googleGeocode(loc):
-  time.sleep(random.Random().gauss(SLEEP_GAUSSIAN_PARAMS['mean'],SLEEP_GAUSSIAN_PARAMS['std']))
+  time.sleep(abs(random.Random().gauss(SLEEP_GAUSSIAN_PARAMS['mean'],SLEEP_GAUSSIAN_PARAMS['std'])))
   geolocator = GoogleV3()
   try:
     res =  geolocator.geocode(loc)
