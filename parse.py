@@ -59,6 +59,7 @@ def main():
       for m in j:
         print "Parsing and Geocoding %s (dt=%0.2f hours)" % (m['title'],(time.time()-s)/60/60)
         res = db.execute(SQL_SELECT % (m['bibCode'],m['title'])).fetchall()
+        L = m['location'] if m['location'] else m['address']
         if res:
           lat = res[0][0]
           lng = res[0][1]
@@ -71,8 +72,7 @@ def main():
             print "...Skipping since we already seem to have a valid lat/lng"
             continue
           else:
-            print "Re-running geocoding of lat,lng %s,%s" % (lat,lng)
-        L = m['location'] if m['location'] else m['address']
+            print "Re-running geocoding of %s" % (m['location'])
         lat,lng = googleGeocode(L)
         print "Google geocode returned lat,lng [%s,%s] for [%s]" % (lat,lng,L)
         bibcode = m['bibCode']
