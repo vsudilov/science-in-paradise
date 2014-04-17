@@ -60,12 +60,18 @@ def main():
         print "Parsing and Geocoding %s (dt=%0.2f hours)" % (m['title'],(time.time()-s)/60/60)
         res = db.execute(SQL_SELECT % (m['bibCode'],m['title'])).fetchall()
         if res:
-          res = res[0]
-          if isinstance(res[0],float) and isinstance(res[1],float):
-            print "Skipping since we already seem to have a valid lat/lng"
+          lat = res[0][0]
+          lng = res[0][1]
+          try:
+            lat = float(lat)
+            lng = float(lng)
+          except:
+            pass
+          if isinstance(lat,float) and isinstance(lng,float):
+            print "...Skipping since we already seem to have a valid lat/lng"
             continue
           else:
-            print "Re-running geocoding of lat,lng %s,%s" % (res[0],res[1])
+            print "Re-running geocoding of lat,lng %s,%s" % (lat,lng)
         L = m['location'] if m['location'] else m['address']
         lat,lng = googleGeocode(L)
         print "Google geocode returned lat,lng [%s,%s] for [%s]" % (lat,lng,L)
