@@ -96,7 +96,7 @@ def main():
           SQL = SQL % (bibcode,name,start,duration,keywords,bibcode,name,lat,lng)
         elif strategy == "update":
           SQL = SQL_UPDATE.strip().replace('\n','')
-          SQL = SQL & (lat,lng,name,bibcode)
+          SQL = SQL % (lat,lng,name,bibcode)
         db.executescript(SQL)
         db.commit()
     y+=1
