@@ -83,7 +83,7 @@ function vis_map(data){
 
   var rscale = d3.scale.linear()
     .domain([d3.min(data,function(d){return d.duration}),d3.max(data, function(d){return d.duration})])
-    .range([1500,5500])
+    .range([70,5500])
     .nice();
   //
 
@@ -185,6 +185,8 @@ function vis_map(data){
     bubbleG
       .selectAll("circle")
       .attr('r', function(d) { return Math.sqrt(rscale(d.duration))/zoom.scale()})
+      .append('svg:title')
+      .text(function(d) { return d.name; });
 
     // text
     //   .attr('font-size',100/zoom.scale())
@@ -227,6 +229,8 @@ function vis_map(data){
       .attr("r",1e-5)    
       .transition().duration(500)
       .attr("r", function(d) { return Math.sqrt(rscale(d.duration))/zoom.scale()})
+      .append('svg:title')
+      .text(function(d) { return d.name; });
   }
 
 }
