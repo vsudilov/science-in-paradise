@@ -38,10 +38,14 @@ function vis_map(data){
   var colors = d3.scale.category20()
   var categories = {}
 
+
+  //Parse the incoming data, add/transform to it as needed
   $.each(data,function(index,v){
     if ( !(v.category in categories) ) {
       categories[v.category] = {color: colors(Object.keys(categories).length)}
     }
+    v.date = new Date(v.date);
+    v.id = index //sadface, needed for the current implementation of category filtering
   })
 
   var legend = d3.select('#group-selection-widget ul')
@@ -81,38 +85,39 @@ function vis_map(data){
 
   var daterange = [d3.min(data,function(d){return d.date}),d3.max(data, function(d){return d.date})]
 
-  var rscale = d3.scale.linear()
-    .domain([d3.min(data,function(d){return d.duration}),d3.max(data, function(d){return d.duration})])
-    .range([70,5500])
-    .nice();
-  //
+  // var rscale = d3.scale.linear()
+  //   .domain([min(mydata),d3.max(mydata)])
+  //   .range([70,5500])
+  //   .nice();
+  
+  var rscale =  2000
 
   //jquery-ui slider setup
-  $( "#year-slider" ).slider({
-    range: true,
-    min: daterange[0],
-    max: daterange[1],
-    values: daterange,
-    change: function (event, ui ){
-      DataFilter.removePreviousFiltersByType('yearFilter')
-      var filter = {
-        type:'yearFilter',
-        testCase: [ui.values[0],ui.values[1]],
-        filter: function(datum){
-          //if the test passes, then we filter it (return true=don't show this datum)
-          return (datum.date >= this.testCase[0] && datum.date <= this.testCase[1]) ? false:true
-        },
-      }
-      DataFilter.filters.push(filter)
-      updateVis(DataFilter.run())
-    },
-    slide: function( event, ui ) {
-      $( "#slider-label-text" ).val( ui.values.join(' - ') );
-    }
-  });
-    //Set the initial values outside of change, so we don't have to put null checking logic in the event handler
-  $( "#slider-label-text" ).val( daterange.join(' - '))
-  //
+  // $( "#year-slider" ).slider({
+  //   range: true,
+  //   min: daterange[0],
+  //   max: daterange[1],
+  //   values: daterange,
+  //   change: function (event, ui ){
+  //     DataFilter.removePreviousFiltersByType('yearFilter')
+  //     var filter = {
+  //       type:'yearFilter',
+  //       testCase: [ui.values[0],ui.values[1]],
+  //       filter: function(datum){
+  //         //if the test passes, then we filter it (return true=don't show this datum)
+  //         return (datum.date >= this.testCase[0] && datum.date <= this.testCase[1]) ? false:true
+  //       },
+  //     }
+  //     DataFilter.filters.push(filter)
+  //     updateVis(DataFilter.run())
+  //   },
+  //   slide: function( event, ui ) {
+  //     $( "#slider-label-text" ).val( ui.values.join(' - ') );
+  //   }
+  // });
+  //   //Set the initial values outside of change, so we don't have to put null checking logic in the event handler
+  // $( "#slider-label-text" ).val( daterange.join(' - '))
+  // //
 
 
   //var width = 256*5, //5 tiles of 256 pixels each.
@@ -160,15 +165,23 @@ function vis_map(data){
 
   bubbles.append("circle")
       .attr("fill",function(d) {return categories[d.category].color})
-        
-  // var text = bubbles.append("text")
-  //      .attr("text-anchor","middle")
-  //      //.attr("transform", 'translate(0,-18)')
-  //      .attr('fill','red')
-  //      .attr('font-size',10)
-  //      .text(function(d) {
-  //        return d.name;
-  //      });
+  
+  var text = bubbles.append("text")
+       .attr("text-anchor","middle")
+       //.attr("transform", 'translate(0,-18)')
+       .attr('fill','red')
+       .attr('font-size',100/zoom.scale())
+       .style('visibility','hidden')
+       .text(function(d) {
+         return d.category;
+       });
+
+
+  bubbles.on("click", function() {
+    d3.select(this).select('text')
+      .style('visibility',function() {return $(this).css('visibility')=='hidden' ? 'visible':'hidden'} )
+  })
+
 
   svg.call(zoom)
   zoomed()
@@ -184,12 +197,10 @@ function vis_map(data){
           
     bubbleG
       .selectAll("circle")
-      .attr('r', function(d) { return Math.sqrt(rscale(d.duration))/zoom.scale()})
-      .append('svg:title')
-      .text(function(d) { return d.name; });
+      .attr('r', function(d) { return Math.sqrt(rscale)/zoom.scale()})
 
-    // text
-    //   .attr('font-size',100/zoom.scale())
+    text
+      .attr('font-size',100/zoom.scale())
 
     var image = raster
         .attr("transform", "scale(" + tiles.scale + ")translate(" + tiles.translate + ")")
@@ -211,7 +222,7 @@ function vis_map(data){
 
   function updateVis(newVisData) {
     var bg = bubbleG.selectAll('.bubble')
-      .data(newVisData, function(d) {return d.name})
+      .data(newVisData, function(d) {return d.id})
 
     var exit = bg.exit()
     exit.transition().duration(500)
@@ -228,9 +239,9 @@ function vis_map(data){
       .attr("fill",function(d) {return categories[d.category].color})
       .attr("r",1e-5)    
       .transition().duration(500)
-      .attr("r", function(d) { return Math.sqrt(rscale(d.duration))/zoom.scale()})
-      .append('svg:title')
-      .text(function(d) { return d.name; });
+      .attr("r", function(d) { return Math.sqrt(rscale)/zoom.scale()})
+      //.append('svg:title')
+      //.text(function(d) { return d.name; });
   }
 
 }
